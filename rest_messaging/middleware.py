@@ -19,7 +19,7 @@ class MessagingMiddleware(object):
             "to be installed because request.user must be available."
         )
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
 
             participant = cache.get('rest_messaging_participant_{0}'.format(request.user.id), None)
 
