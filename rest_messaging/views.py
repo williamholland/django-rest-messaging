@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.utils.timezone import now
 from rest_framework import mixins, permissions, status, viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_messaging.compat import compat_get_paginated_response, compat_get_request_data, compat_pagination_messages, compat_serializer_check_is_valid, compat_thread_serializer_set, compat_perform_update
 from rest_messaging.models import Message, NotificationCheck, Participant, Participation, Thread
@@ -61,7 +61,7 @@ class ThreadView(mixins.RetrieveModelMixin,
             compat_perform_update(self, serializer)
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @action(methods=['post'], detail=True)
     def add_participants(self, request, pk=None):
         # we get the thread and check for permission
         thread = Thread.objects.get(id=pk)
@@ -73,7 +73,7 @@ class ThreadView(mixins.RetrieveModelMixin,
         serializer = self.get_serializer(thread)
         return Response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @action(methods=['post'], detail=True)
     def remove_participant(self, request, pk=None):
         # we get the thread and check for permission
         thread = Thread.objects.get(id=pk)
@@ -90,7 +90,7 @@ class ThreadView(mixins.RetrieveModelMixin,
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['get'])
+    @action(methods=['get'], detail=True)
     def get_removable_participants_ids(self, request, pk=None):
         # we get the thread and check for permission
         thread = Thread.objects.get(id=pk)
@@ -103,7 +103,7 @@ class ThreadView(mixins.RetrieveModelMixin,
         except Exception:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'])
+    @action(methods=['post'], detail=True)
     def mark_thread_as_read(self, request, pk=None):
         """ Pk is the pk of the Thread to which the messages belong. """
         # we get the thread and check for permission
@@ -136,7 +136,7 @@ class MessageView(mixins.ListModelMixin,
         messages = Message.managers.get_lasts_messages_of_threads(self.request.rest_messaging_participant.id, check_who_read=True, check_is_notification=check_notifications)
         return messages
 
-    @detail_route(methods=['post'], permission_classes=[IsInThread], serializer_class=SimpleMessageSerializer)
+    @action(methods=['post'], permission_classes=[IsInThread], serializer_class=SimpleMessageSerializer, detail=True)
     def post_message(self, request, pk=None):
         """ Pk is the pk of the Thread to which the message belongs. """
         # we get the thread and check for permission
@@ -154,7 +154,7 @@ class MessageView(mixins.ListModelMixin,
         except Exception:
             return Response(status=status.HTTP_412_PRECONDITION_FAILED)
 
-    @detail_route(methods=['get'], permission_classes=[IsInThread], serializer_class=ComplexMessageSerializer)
+    @action(methods=['get'], permission_classes=[IsInThread], serializer_class=ComplexMessageSerializer, detail=True)
     def list_messages_in_thread(self, request, pk=None):
         """ Pk is the pk of the Thread to which the messages belong. """
         # we get the thread and check for permission
@@ -173,7 +173,7 @@ class NotificationCheckView(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = MessageNotificationCheckSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @list_route(methods=['post'])
+    @action(methods=['post'], detail=False)
     def check(self, request, *args, **kwargs):
         # we get the NotificationCheck instance corresponding to the user or we create it
 
