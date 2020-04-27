@@ -74,4 +74,5 @@ class ComplexMessageSerializer(serializers.ModelSerializer):
 class MessageNotificationCheckSerializer(serializers.ModelSerializer):
 
     class Meta:
+        fields = '__all__'
         model = NotificationCheck
