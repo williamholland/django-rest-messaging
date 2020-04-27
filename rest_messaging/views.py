@@ -172,6 +172,7 @@ class NotificationCheckView(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     serializer_class = MessageNotificationCheckSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    queryset = NotificationCheck.objects.all()
 
     @action(methods=['post'], detail=False)
     def check(self, request, *args, **kwargs):
